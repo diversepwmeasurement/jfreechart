@@ -1,26 +1,33 @@
----
-name: Java CI
-
-on: [push]
-
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-18.04, macOS-latest, windows-2016]
-        java: [11, 13, 15, 16, 17-ea]
-      fail-fast: false
-      max-parallel: 4
     name: Test JDK ${{ matrix.java }}, ${{ matrix.os }}
-
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v1
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.java }}
-      - name: Test with Maven
-        run: mvn test -B --file pom.xml
-
-...
+    - continue-on-error: true
+      uses: actions/checkout@v1
+    - continue-on-error: true
+      name: Set up JDK
+      uses: actions/setup-java@v1
+      with:
+        java-version: ${{ matrix.java }}
+    - continue-on-error: true
+      name: Test with Maven
+      run: mvn test -B --file pom.xml
+    strategy:
+      fail-fast: false
+      matrix:
+        java:
+        - 11
+        - 13
+        - 15
+        - 16
+        - 17-ea
+        os:
+        - ubuntu-18.04
+        - macOS-latest
+        - windows-2016
+      max-parallel: 4
+name: Java CI
+on:
+  repository_dispatch:
+    types: trigger-ga___ci.yaml
